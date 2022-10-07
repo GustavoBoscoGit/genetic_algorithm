@@ -1,66 +1,65 @@
+# Y = w1.x1 + w2.x2 + w3.x3 + w4.x4 + w5.x5 + w6.x6
 import numpy as np
 import ga
-
-
 def main():
-    # entradas da equação
-    equation_inputs = [15, 7, 10, 5, 8, 17]
-
-    # número de pesos a otimizar
-    num_weights = 6
-
-    sol_per_pop = 8
-
-    # população tem sol_per_pop cromossomos com num_weights gens
-    pop_size = (sol_per_pop, num_weights)
-
-    # População inicial
-    new_population = np.random.uniform(low=0, high=2, size=pop_size)
-
-    # Algoritmo genético
-    num_generations = 100
-    num_parents_mating = 4
-
+    # Valores para as variáveis xi
+    equation_inputs = [15, 10, 5, 5, 8, 17]  # new ArrayList<>();
+    # Número de pesos (w) a otimizar
+    num_weights = 6  # número de genes
+    # tamanho da população
+    solutions_per_population = 6  # número de cromossomos
+    # um conjunto de 8 x 6
+    population_size = (solutions_per_population, num_weights)
+    # Criar população inicial (inicializar)
+    population = np.random.randint(
+        low=0, high=2,
+        size=population_size)
+    
+    print("População inicial:")
+    print(population)
+    # número de gerações
+    num_generations = 5
+    # número de genitores para cruzamento
+    num_parents_crossover = 4
+    # para cada geração
+    # for (int i = 0, i < num_generations; i++)
     for generation in range(num_generations):
-        print(f"Geração: {generation}")
-
-        # medir o ‘fitness’ de cada cromossomo na população
-        fitness = ga.cal_pop_fitness(equation_inputs, new_population)
-
-        print("Valores de fitness:")
+        print(f"\nGeração {generation}")
+        # calcular o fitness
+        fitness = ga.fitness(equation_inputs, population)
+        print("\nFitness:")
         print(fitness)
-
-        # Selecionar os melhores pais na população para o cruzamento
-        parents = ga.select_mating_pool(new_population, fitness, num_parents_mating)
-
-        print("Genitores selecionados:")
-        print(parents)
-
-        # formar a próxima geração usando crossover
-        offspring_crossover = ga.crossover(parents, offspring_size=(
-            pop_size[0] - parents.shape[0], num_weights
-        ))
-        print("Resultado do crossover:")
+        # selecionar os melhores indivíduos
+        selected_parents = ga.selection(
+            population, fitness, num_parents_crossover)
+        print("\nGenitores selecionados:")
+        print(selected_parents)
+        # fazer o crossover entre os melhores indivíduos
+        offspring_crossover = ga.crossover(
+            selected_parents, (
+                solutions_per_population - num_parents_crossover,
+                num_weights
+            )
+        )
+        print("\nFilhos gerados por crossover:")
         print(offspring_crossover)
-
-        # adicionar variações aos filhos usando mutação
+        # adicionar mutação nos filhos gerados
         offspring_mutation = ga.mutation(offspring_crossover)
-        print("Resultado da mutação:")
+        print("\nFilhos pós mutação:")
         print(offspring_mutation)
+        # criar a nova população
+        # elitismo
+        population[0:selected_parents.shape[0], :] = selected_parents
+        # crossover + mutação
+        population[selected_parents.shape[0]:, :] = offspring_mutation
+        print("\nNova população:")
+        print(population)
+        print("Melhor resultado: ", np.max(
+            ga.fitness(equation_inputs, population)))
+    fitness = ga.fitness(equation_inputs, population)
+    best_fit_idx = np.where(fitness == np.max(fitness))
+    print("Melhor resultado: ", population[best_fit_idx, :])
+    print("Fitness do melhor: ", fitness[best_fit_idx])
 
-        # criar a nova população baseada nos pais e filhos
-        new_population[0:parents.shape[0], :] = parents
-        new_population[parents.shape[0]:, :] = offspring_mutation
-
-        best_result = np.max(np.sum(new_population*equation_inputs, axis=1))
-        print(f"Melhor resultado depois da geração {generation}: {best_result}")
-
-    fitness = ga.cal_pop_fitness(equation_inputs, new_population)
-    best_match_idx = np.where(fitness == np.max(fitness))
-
-    print("Melhor solução: ", new_population[best_match_idx, :])
-    print("Fitness da melhor solução: ", fitness[best_match_idx])
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
