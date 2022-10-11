@@ -1,10 +1,10 @@
 import sys
 import numpy as np
-def fitness(equation_inputs, population):
+def fitness(equation_points, equation_inputs):
     # calcular o fitness da população atual
     # calcula a soma dos produtos de w.x (população x inputs)
 
-    soma = np.sum(population * equation_inputs, axis=1)
+    soma = np.sum(equation_inputs * equation_points, axis=1)
 
     fitness = []
 
